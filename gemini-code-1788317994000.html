@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Notepad</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f4f4f9;
+            padding: 16px;
+        }
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        input, select, button, textarea {
+            font-size: 14px;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            min-width: 150px;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #0052a3;
+        }
+        textarea {
+            flex-grow: 1;
+            width: 100%;
+            resize: none;
+            font-family: monospace;
+            line-height: 1.5;
+            outline: none;
+        }
+        textarea:focus {
+            border-color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <input type="text" id="filename" value="note" placeholder="File name">
+        <select id="format">
+            <option value="txt">.txt (Text)</option>
+            <option value="md">.md (Markdown)</option>
+            <option value="html">.html (HTML)</option>
+            <option value="json">.json (JSON)</option>
+            <option value="css">.css (CSS)</option>
+            <option value="js">.js (JavaScript)</option>
+            <option value="custom">Custom Extension...</option>
+        </select>
+        <input type="text" id="custom-ext" placeholder="e.g. py, csv, log" style="display: none; width: 120px;">
+        <button id="save-btn">Save File</button>
+    </div>
+
+    <textarea id="editor" placeholder="Type your text here..."></textarea>
+
+    <script>
+        const formatSelect = document.getElementById('format');
+        const customExtInput = document.getElementById('custom-ext');
+        const saveBtn = document.getElementById('save-btn');
+        const editor = document.getElementById('editor');
+        const filenameInput = document.getElementById('filename');
+
+        // Toggle custom extension field
+        formatSelect.addEventListener('change', () => {
+            if (formatSelect.value === 'custom') {
+                customExtInput.style.display = 'inline-block';
+            } else {
+                customExtInput.style.display = 'none';
+            }
+        });
+
+        // Save functionality
+        saveBtn.addEventListener('click', () => {
+            const text = editor.value;
+            const baseName = filenameInput.value.trim() || 'note';
+            
+            // Determine file extension
+            let extension = formatSelect.value;
+            if (extension === 'custom') {
+                extension = customExtInput.value.trim().replace(/^\./, '') || 'txt';
+            }
+
+            const fileName = `${baseName}.${extension}`;
+
+            // Create blob and download link
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            
+            // Cleanup
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        });
+    </script>
+</body>
+</html>
