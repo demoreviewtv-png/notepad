@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Notepad with Syntax Highlighting</title>
+    <title>Web Notepad Pro</title>
+    <!-- CodeMirror Base CSS & Dracula Theme -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
@@ -25,14 +26,19 @@
         }
         .toolbar {
             display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
+            gap: 8px;
+            margin-bottom: 8px;
             align-items: center;
             flex-wrap: wrap;
         }
+        .quick-btn-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
         input, select, button {
-            font-size: 14px;
-            padding: 8px 12px;
+            font-size: 13px;
+            padding: 7px 10px;
             border: 1px solid #44475a;
             border-radius: 4px;
             background-color: #44475a;
@@ -41,7 +47,7 @@
         }
         input[type="text"] {
             flex-grow: 1;
-            min-width: 150px;
+            min-width: 130px;
         }
         button {
             background-color: #bd93f9;
@@ -49,46 +55,113 @@
             border: none;
             cursor: pointer;
             font-weight: 600;
+            transition: background 0.2s;
         }
         button:hover {
             background-color: #ff79c6;
         }
-        /* CodeMirror Editor Custom Dimensions */
+        button.active-mode {
+            background-color: #50fa7b;
+            color: #282a36;
+        }
+        .btn-secondary {
+            background-color: #6272a4;
+            color: #f8f8f2;
+        }
+        .btn-secondary:hover {
+            background-color: #8be9fd;
+            color: #282a36;
+        }
+        .btn-storage {
+            background-color: #ffb86c;
+            color: #282a36;
+        }
+        .btn-storage:hover {
+            background-color: #ffb86c;
+            opacity: 0.8;
+        }
         .CodeMirror {
             flex-grow: 1;
             height: auto;
             border-radius: 4px;
             font-family: 'Fira Code', monospace;
-            font-size: 15px;
+            font-size: 14px;
+        }
+        #file-input {
+            display: none;
         }
     </style>
 </head>
 <body>
 
+    <!-- Main Toolbar -->
     <div class="toolbar">
         <input type="text" id="filename" value="script" placeholder="File name">
         <select id="format">
             <option value="htmlmixed">.html (HTML)</option>
-            <option value="python">.py (Python)</option>
-            <option value="javascript">.js (JavaScript)</option>
             <option value="css">.css (CSS)</option>
+            <option value="javascript">.js (JavaScript)</option>
+            <option value="python">.py (Python)</option>
+            <option value="jsx">.jsx (React / JSX)</option>
+            <option value="typescript">.ts (TypeScript)</option>
+            <option value="php">.php (PHP)</option>
+            <option value="sql">.sql (SQL)</option>
+            <option value="xml">.xml (XML)</option>
+            <option value="json">.json (JSON)</option>
             <option value="markdown">.md (Markdown)</option>
+            <option value="shell">.sh (Bash / Shell)</option>
+            <option value="clike-c">.c (C)</option>
+            <option value="clike-cpp">.cpp (C++)</option>
+
+            <option value="clike-java">.java (Java)</option>
             <option value="null">.txt (Text)</option>
         </select>
+        
         <button id="save-btn">Save File</button>
+        <button id="import-btn" class="btn-secondary">Import File</button>
+        <input type="file" id="file-input">
+
+        <button id="store-btn" class="btn-storage">Save to Browser</button>
+        <button id="load-btn" class="btn-storage">Load Browser Storage</button>
+    </div>
+
+    <!-- Quick Format Buttons -->
+    <div class="toolbar">
+        <span style="font-size: 12px; color: #6272a4;">Quick Select:</span>
+        <div class="quick-btn-group">
+            <button class="quick-btn active-mode" data-mode="htmlmixed">HTML</button>
+            <button class="quick-btn" data-mode="css">CSS</button>
+            <button class="quick-btn" data-mode="javascript">JS</button>
+            <button class="quick-btn" data-mode="python">PY</button>
+            <button class="quick-btn" data-mode="jsx">JSX</button>
+            <button class="quick-btn" data-mode="typescript">TS</button>
+            <button class="quick-btn" data-mode="php">PHP</button>
+            <button class="quick-btn" data-mode="sql">SQL</button>
+            <button class="quick-btn" data-mode="json">JSON</button>
+            <button class="quick-btn" data-mode="markdown">MD</button>
+            <button class="quick-btn" data-mode="null">TXT</button>
+        </div>
     </div>
 
     <textarea id="editor"></textarea>
 
+    <!-- CodeMirror Core JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     
+    <!-- CodeMirror Language Modes -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/shell/shell.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/jsx/jsx.min.js"></script>
 
+    <!-- CodeMirror Auto-Completion Addons -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/xml-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/html-hint.min.js"></script>
@@ -98,23 +171,57 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
 
     <script>
-        // Starter boilerplates for each mode
+        // Templates pre-populated with example styles and structures
         const templates = {
-            htmlmixed: `<!DOCTYPE html>\n<html>\n<head>\n  <title>Title</title>\n</head>\n<body>\n  <h1>Hello, World!</h1>\n</body>\n</html>`,
-            python: `def main():\n    print("Hello, World!")\n\nif __name__ == "__main__":\n    main()`,
-            javascript: `function greet(name) {\n    console.log("Hello, " + name);\n}\n\ngreet("World");`,
-            css: `body {\n    background-color: #282a36;\n    color: #ffffff;\n}`,
-            markdown: `# Sample Markdown\n\n- Point 1\n- Point 2`,
-            null: `Type plain text here...`
+            htmlmixed: `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Sample Document</title>\n  <style>\n    /* Example Style 1: Page Base */\n    body {\n      background-color: #1a1a1a;\n      color: #ffffff;\n      font-family: sans-serif;\n    }\n    /* Example Style 2: Header Styling */\n    h1 {\n      color: #ff79c6;\n      text-align: center;\n    }\n    /* Example Style 3: Card Container */\n    .card {\n      border: 2px solid #bd93f9;\n      padding: 16px;\n      border-radius: 8px;\n    }\n  </style>\n</head>\n<body>\n  <h1>Hello World</h1>\n  <div class="card">\n    <p>This is an HTML page with built-in styles.</p>\n  </div>\n</body>\n</html>`,
+            
+            css: `/* Example Style 1: Global Reset & Fonts */\n* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n}\n\n/* Example Style 2: Flexbox Layout */\n.container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n}\n\n/* Example Style 3: Button Hover Effects */\n.btn {\n  background-color: #bd93f9;\n  color: #282a36;\n  padding: 10px 20px;\n  border-radius: 6px;\n  transition: transform 0.2s;\n}\n.btn:hover {\n  transform: scale(1.05);\n}`,
+            
+            javascript: `// Example JS Functions\nfunction calculateTotal(price, taxRate = 0.08) {\n    return price + (price * taxRate);\n}\n\nconst items = [\n    { name: "Notebook", price: 15 },\n    { name: "Pen", price: 2 }\n];\n\nconsole.log("Total:", calculateTotal(items[0].price));`,
+            
+            python: `# Example Python Script\nimport sys\n\ndef greet(name: str) -> str:\n    return f"Hello, {name}!"\n\nif __name__ == "__main__":\n    user_name = "Developer"\n    print(greet(user_name))`,
+            
+            jsx: `import React, { useState } from 'react';\n\nexport default function App() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div style={{ padding: '20px', textAlign: 'center' }}>\n      <h1>Count: {count}</h1>\n      <button onClick={() => setCount(count + 1)}>Increment</button>\n    </div>\n  );\n}`,
+            
+            typescript: `interface User {\n    id: number;\n    username: string;\n    isAdmin: boolean;\n}\n\nconst currentUser: User = {\n    id: 1,\n    username: "coder123",\n    isAdmin: true\n};\n\nconsole.log(currentUser);`,
+            
+            php: `<?php\n$title = "Welcome Page";\n$items = ["Apple", "Banana", "Cherry"];\n?>\n<!DOCTYPE html>\n<html>\n<head>\n  <title><?php echo $title; ?></title>\n</head>\n<body>\n  <ul>\n    <?php foreach($items as $item): ?>\n      <li><?php echo $item; ?></li>\n    <?php endforeach; ?>\n  </ul>\n</body>\n</html>`,
+            
+            sql: `-- Create Example Database Table\nCREATE TABLE users (\n    id INT PRIMARY KEY AUTO_INCREMENT,\n    username VARCHAR(50) NOT NULL,\n    email VARCHAR(100) UNIQUE,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nSELECT * FROM users WHERE id = 1;`,
+            
+            xml: `<?xml version="1.0" encoding="UTF-8"?>\n<catalog>\n    <book id="bk101">\n        <author>Gambardella, Matthew</author>\n        <title>XML Developer's Guide</title>\n        <price>44.95</price>\n    </book>\n</catalog>`,
+            
+            json: `{\n  "appName": "Web Notepad",\n  "version": "2.0.0",\n  "features": [\n    "Syntax Highlighting",\n    "File Import/Export",\n    "Local Storage"\n  ],\n  "active": true\n}`,
+            
+            markdown: `# Document Title\n\n## Subheading\n\nHere is a list of features:\n- **Bold Text**\n- *Italic Text*\n- \`Inline Code\`\n\n\`\`\`javascript\nconsole.log("Code block");\n\`\`\``,
+            
+            shell: `#!/bin/bash\n# Sample Shell Script\n\nNAME="User"\necho "Hello, $NAME!"\n\nif [ -f "file.txt" ]; then\n    echo "File exists."\nfi`,
+            
+            "clike-c": `#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}`,
+            
+            "clike-cpp": `#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<std::string> msg {"Hello", "C++", "World!"};\n    for (const std::string& word : msg) {\n        std::cout << word << " ";\n    }\n    return 0;\n}`,
+            
+            "clike-java": `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}`,
+            
+            null: `Plain text document.\nType anything here without syntax formatting.`
         };
 
-        // File extensions mapping
         const extensions = {
             htmlmixed: 'html',
-            python: 'py',
-            javascript: 'js',
             css: 'css',
+            javascript: 'js',
+            python: 'py',
+            jsx: 'jsx',
+            typescript: 'ts',
+            php: 'php',
+            sql: 'sql',
+            xml: 'xml',
+            json: 'json',
             markdown: 'md',
+            shell: 'sh',
+            "clike-c": 'c',
+            "clike-cpp": 'cpp',
+            "clike-java": 'java',
             null: 'txt'
         };
 
@@ -125,33 +232,82 @@
             mode: 'htmlmixed',
             autoCloseTags: true,
             autoCloseBrackets: true,
-            lineWrapping: true
+            lineWrapping: true,
+            tabSize: 2,
+            indentUnit: 2,
+            indentWithTabs: false,
+            extraKeys: {
+                "Tab": function(cm) {
+                    if (cm.somethingSelected()) {
+                        cm.indentSelection("add");
+                    } else {
+                        cm.replaceSelection("  ", "end");
+                    }
+                },
+                "Shift-Tab": function(cm) {
+                    cm.indentSelection("subtract");
+                }
+            }
         });
 
-        // Set initial content
         editor.setValue(templates.htmlmixed);
 
-        // Auto-complete trigger on typing standard characters
+        // Auto-complete suggestion popup
         editor.on('inputRead', (cm, change) => {
             if (change.origin !== '+delete' && /[a-zA-Z<.]/.test(change.text[0])) {
                 cm.showHint({ completeSingle: false });
             }
         });
 
-        // Handle language dropdown change
+        // UI elements
         const formatSelect = document.getElementById('format');
+        const quickBtns = document.querySelectorAll('.quick-btn');
+        const filenameInput = document.getElementById('filename');
+        const fileInput = document.getElementById('file-input');
+
+        // Helper to update active mode UI state
+        function setLanguageMode(mode) {
+            let cmMode = mode;
+            if (mode.startsWith('clike-')) {
+                cmMode = { name: 'clike', mime: mode === 'clike-c' ? 'text/x-csrc' : mode === 'clike-cpp' ? 'text/x-c++src' : 'text/x-java' };
+            }
+
+            editor.setOption('mode', cmMode);
+            formatSelect.value = mode;
+
+            quickBtns.forEach(btn => {
+                if (btn.dataset.mode === mode) {
+                    btn.classList.add('active-mode');
+                } else {
+                    btn.classList.remove('active-mode');
+                }
+            });
+        }
+
+        // Change mode via dropdown
         formatSelect.addEventListener('change', () => {
             const selectedMode = formatSelect.value;
-            
-            // Update syntax mode and editor template
-            editor.setOption('mode', selectedMode);
-            editor.setValue(templates[selectedMode] || '');
+            setLanguageMode(selectedMode);
+            if (templates[selectedMode]) {
+                editor.setValue(templates[selectedMode]);
+            }
         });
 
-        // Handle file download
+        // Change mode via Quick Select buttons
+        quickBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.dataset.mode;
+                setLanguageMode(mode);
+                if (templates[mode]) {
+                    editor.setValue(templates[mode]);
+                }
+            });
+        });
+
+        // Download / Save File
         document.getElementById('save-btn').addEventListener('click', () => {
             const text = editor.getValue();
-            const baseName = document.getElementById('filename').value.trim() || 'file';
+            const baseName = filenameInput.value.trim() || 'file';
             const selectedMode = formatSelect.value;
             const ext = extensions[selectedMode] || 'txt';
             const fileName = `${baseName}.${ext}`;
@@ -165,6 +321,64 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(link.href);
+        });
+
+        // Import File Trigger
+        document.getElementById('import-btn').addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Import File Reader
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                editor.setValue(evt.target.result);
+                
+                // Auto-detect extension and update UI
+                const ext = file.name.split('.').pop().toLowerCase();
+                filenameInput.value = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+
+                let matchedMode = 'null';
+                for (const [mode, modeExt] of Object.entries(extensions)) {
+                    if (modeExt === ext) {
+                        matchedMode = mode;
+                        break;
+                    }
+                }
+                setLanguageMode(matchedMode);
+            };
+            reader.readAsText(file);
+            fileInput.value = ''; // Reset input
+        });
+
+        // Browser LocalStorage: Save
+        document.getElementById('store-btn').addEventListener('click', () => {
+            const data = {
+                content: editor.getValue(),
+                filename: filenameInput.value,
+                mode: formatSelect.value
+            };
+            localStorage.setItem('web_notepad_saved_data', JSON.stringify(data));
+            alert('Note saved to browser storage!');
+        });
+
+        // Browser LocalStorage: Load
+        document.getElementById('load-btn').addEventListener('click', () => {
+            const saved = localStorage.getItem('web_notepad_saved_data');
+            if (!saved) {
+                alert('No saved note found in browser storage.');
+                return;
+            }
+            const data = JSON.parse(saved);
+            editor.setValue(data.content || '');
+            filenameInput.value = data.filename || 'script';
+            if (data.mode) {
+                setLanguageMode(data.mode);
+            }
+            alert('Note loaded from browser storage!');
         });
     </script>
 </body>
